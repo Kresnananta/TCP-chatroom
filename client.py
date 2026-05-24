@@ -39,9 +39,14 @@ def main():
         # Send messages
         while True:
             message = input("> ")
+            if message.lower() in ("/exit", "/quit"):
+                print("Disconnected from chatroom.")
+                break
             if message:
                 client_socket.send(message.encode())
     
+    except KeyboardInterrupt:
+        print("\nDisconnected from chatroom.")
     except Exception as e:
         print(f"Error: {e}")
     finally:

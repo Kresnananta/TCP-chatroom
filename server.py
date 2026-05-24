@@ -81,13 +81,17 @@ def start_server():
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((SERVER_HOST, SERVER_PORT))
     server_socket.listen(MAX_CLIENTS)
+    server_socket.settimeout(1.0)
     
     print(f"[SERVER] Server started on port {SERVER_PORT}")
     print(f"[SERVER] Waiting for {MAX_CLIENTS} clients to connect...\n")
     
     try:
         while True:
-            client_socket, client_address = server_socket.accept()
+            try:
+                client_socket, client_address = server_socket.accept()
+            except socket.timeout:
+                continue
             
             # Create a new thread to handle this client
             client_thread = threading.Thread(target=handle_client, args=(client_socket, client_address))
@@ -97,6 +101,13 @@ def start_server():
     except KeyboardInterrupt:
         print("\n[SERVER] Shutting down...")
     finally:
+        with clients_lock:
+            for client_socket in clients:
+                try:
+                    client_socket.close()
+                except:
+                    pass
+            clients.clear()
         server_socket.close()
 
 if __name__ == "__main__":
