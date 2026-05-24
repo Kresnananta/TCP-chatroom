@@ -12,8 +12,8 @@ def receive_messages(client_socket):
         try:
             message = client_socket.recv(1024).decode()
             if message:
-                sys.stdout.write(f"\n{message}\n")
-                sys.stdout.flush()
+                sys.stdout.write("\r\033[K")
+                sys.stdout.write(message.rstrip('\n') + '\n')
                 sys.stdout.write("> ")
                 sys.stdout.flush()
             else:
